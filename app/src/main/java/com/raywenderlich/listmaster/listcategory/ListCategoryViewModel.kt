@@ -27,17 +27,24 @@ import com.raywenderlich.listmaster.R
 
 data class ListCategoryViewModel(val listCategory: ListCategory = ListCategory("")) {
 
-  private val highlightColors = arrayOf(R.color.colorPrimary, R.color.colorPrimaryDark, R.color.colorAccent,
-      R.color.primaryLightColor, R.color.secondaryLightColor, R.color.secondaryDarkColor)
+  private val highlightColors = arrayOf(
+          R.color.colorPrimary,
+          R.color.colorPrimaryDark,
+          R.color.colorAccent,
+          R.color.primaryLightColor,
+          R.color.secondaryLightColor,
+          R.color.secondaryDarkColor)
 
+  // Get first letter of the category name i.e; Cat = C so we can use this C within icon
   fun getHighlightLetter(): String {
     return listCategory.categoryName.first().toString()
   }
 
+  // Each icon will have one of the 6 colors
   fun getHighlightLetterColor(): Int {
-    val uniqueIdMultiplier = getHighlightLetter().hashCode().div(6)
+    val uniqueIdMultiplier = getHighlightLetter().hashCode().div(6) // getHighlightLetter = A, hashcode = 1, div = 1 / 6
     val colorArrayIndex = getHighlightLetter().hashCode() - (uniqueIdMultiplier * 6)
     Log.i("color", colorArrayIndex.toString())
-    return (highlightColors[colorArrayIndex])
+    return (highlightColors[colorArrayIndex]) // return any one among 6 colors
   }
 }

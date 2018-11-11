@@ -23,11 +23,20 @@
 package com.raywenderlich.listmaster
 
 import android.app.Application
+import android.arch.persistence.room.Room
 
 
 class ListMasterApplication : Application() {
 
-  override fun onCreate() {
-    super.onCreate()
-  }
+    companion object {
+        var database: AppDatabase? = null
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        //Get singleton pattern instance of Room Database
+        ListMasterApplication.database = Room.databaseBuilder(this, AppDatabase::class.java, "list-master-db").build()
+
+    }
 }

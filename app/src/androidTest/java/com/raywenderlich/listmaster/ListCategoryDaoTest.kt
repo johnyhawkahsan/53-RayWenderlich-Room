@@ -23,11 +23,14 @@
 package com.raywenderlich.listmaster
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule
+import android.arch.persistence.room.Room
+import android.content.Context
+import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import android.util.Log
+import com.raywenderlich.listmaster.listcategory.ListCategory
+import com.raywenderlich.listmaster.listcategory.ListCategoryDao
+import org.junit.*
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
@@ -35,19 +38,47 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ListCategoryDaoTest {
 
-  @Rule
-  @JvmField
-  val rule: TestRule = InstantTaskExecutorRule()
+    // I don't know what InstantTaskExecutorRule() is
+    @Rule
+    @JvmField
+    val rule: TestRule = InstantTaskExecutorRule()
 
-  @Before
-  fun setup() {
-  }
+    private lateinit var database: AppDatabase
+    private lateinit var listCategoryDao: ListCategoryDao
 
-  @Test
-  fun testAddingAndRetrievingData() {
-  }
+    // In the initial setup, we get context and then create Database instance and DAO instance
+    @Before
+    fun setup() {
+        val context: Context = InstrumentationRegistry.getTargetContext()
+        try {
+            database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
+                    .allowMainThreadQueries().build()
+        } catch (e: Exception) {
+            Log.i("TEST", e.message)
+        }
+        listCategoryDao = database.listCategoryDao()
+    }
 
-  @After
-  fun tearDown() {
-  }
+
+    @Test
+    fun testAddingAndRetrievingData() {
+
+
+        val preInsertRetrievedCategories = listCategoryDao.getAll() // This should get nothing because we don't have any data before test
+
+        val listCategory = ListCategory("Cats", 1) // Create new Category object - Note: It takes 2 parameters
+        listCategoryDao.insertAll(listCategory) // Use insert method of DAO to insert the object
+
+        val postInsertRetrievedCategories = listCategoryDao.getAll() // now get all objects again
+        val sizeDifference = postInsertRetrievedCategories.size - preInsertRetrievedCategories.size // This difference should be (1 = 1 - 0)
+        Assert.assertEquals(1, sizeDifference) // to Ensure sizeDifference is 1
+        val retrievedCategory = postInsertRetrievedCategories.last() // This should return List<ListCategory> and we use last to retrieve last object/category
+        Assert.assertEquals("Cats", retrievedCategory.categoryName)
+    }
+
+    @After
+    fun tearDown() {
+        database.close() // close database after test is finished
+    }
+
 }
